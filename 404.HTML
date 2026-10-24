@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b6b5b">
-<meta name="description" content="WoundDecision v4: valoración, DD bayesiano, catálogo ampliado, miel/larvas, evidencia y bot clínico.">
-<title>WoundDecision · Apoyo Clínico v4</title>
+<meta name="description" content="WoundDecision: apoyo a la decisión clínica en úlceras venosas, arteriales y neuropáticas. Catálogo SESPA, miel médica, terapia larval y evidencia científica.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WoundDecision">
+<title>WoundDecision · Apoyo Clínico v5</title>
 <link rel="manifest" id="manifest-link">
+<link rel="apple-touch-icon" id="apple-icon">
 <style>
   :root{
     --verde:#0b6b5b; --verde-osc:#084d42; --verde-claro:#e6f4f1;
@@ -85,20 +89,17 @@
   .disclaimer{font-size:.75rem;color:var(--gris);background:#f0f4f3;border-radius:10px;
     padding:12px 14px;margin-top:18px;border:1px dashed var(--borde)}
   .disclaimer b{color:var(--texto)}
-  /* Tablas */
   .table-wrap{overflow-x:auto;margin-top:10px;border-radius:10px;border:1px solid var(--borde)}
   table.cat{width:100%;border-collapse:collapse;font-size:.8rem;min-width:650px}
   table.cat th{background:var(--verde-claro);color:var(--verde-osc);text-align:left;padding:9px 8px;font-weight:700;position:sticky;top:0}
   table.cat td{padding:8px;border-top:1px solid var(--borde);vertical-align:top}
   table.cat tr:nth-child(even){background:#fbfdfc}
   table.cat .price{font-weight:700;color:var(--verde-osc);white-space:nowrap}
-  /* Bayes */
-  .prob-bar{background:#eef3f1;border-radius:6px;height:12px;overflow:hidden;margin-top:3px}
-  .prob-bar > div{height:100%;transition:width .5s ease}
   .prob-row{margin-bottom:10px}
   .prob-row .name{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;margin-bottom:2px}
   .prob-row .name span:last-child{color:var(--verde-osc);font-weight:800}
-  /* Bot */
+  .prob-bar{background:#eef3f1;border-radius:6px;height:12px;overflow:hidden;margin-top:3px}
+  .prob-bar > div{height:100%;transition:width .5s ease}
   #chat{height:min(58vh,480px);overflow-y:auto;background:#fbfdfc;border:1px solid var(--borde);
     border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
   .msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:.9rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
@@ -119,13 +120,17 @@
   .src-note b{color:var(--texto)}
   .empty{text-align:center;color:var(--gris);padding:28px 14px;font-size:.9rem}
   .empty .big{font-size:2.6rem;margin-bottom:8px}
+  .offline{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);
+    background:#7b241c;color:#fff;padding:7px 16px;border-radius:999px;font-size:.78rem;
+    font-weight:600;z-index:50;display:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+  .offline.show{display:block}
 </style>
 </head>
 <body>
 
 <header>
-  <h1><span class="logo">W</span> WoundDecision <span class="tag">v4 · DD Bayesiano</span></h1>
-  <p>Apoyo a la decisión clínica · Catálogo · Miel/larvas · Evidencia · v4.0</p>
+  <h1><span class="logo">W</span> WoundDecision <span class="tag">v5 · PWA</span></h1>
+  <p>Apoyo a la decisión clínica · Catálogo · Miel y larvas · Evidencia</p>
 </header>
 
 <nav id="nav">
@@ -141,7 +146,7 @@
 
 <main>
 
-  <!-- ========== VALORACIÓN ========== -->
+  <!-- VALORACIÓN -->
   <section id="tab-valoracion" class="active">
     <div class="card">
       <h2>Valoración de la úlcera<small>Complete los campos. La herramienta generará un plan orientativo y alertas de seguridad.</small></h2>
@@ -152,7 +157,7 @@
         <select id="loc" required>
           <option value="">— Seleccione —</option>
           <option value="maleolo_interno">Maléolo interno / cara interna de la pierna</option>
-          <option value="tercio_inferior">Tercio inferior de la pierna (zona de gemelo)</option>
+          <option value="tercio_inferior">Tercio inferior de la pierna</option>
           <option value="dedos">Dedos del pie</option>
           <option value="talon">Talón</option>
           <option value="prominencia_pie">Prominencia ósea del pie</option>
@@ -164,7 +169,6 @@
 
       <fieldset>
         <legend><span class="num">2</span> Dolor *</legend>
-        <label class="f" for="pain">Tipo de dolor predominante</label>
         <select id="pain" required>
           <option value="">— Seleccione —</option>
           <option value="venoso">Sordo, pesadez; mejora al elevar la pierna</option>
@@ -224,7 +228,7 @@
           <option value="">— Seleccione —</option>
           <option value="bajo">Bajo</option>
           <option value="moderado">Moderado (satura 1-2 días)</option>
-          <option value="alto">Alto (satura <24 h)</option>
+          <option value="alto">Alto (satura en menos de 24 h)</option>
         </select>
       </fieldset>
 
@@ -264,26 +268,26 @@
     </div>
   </section>
 
-  <!-- ========== RESULTADO ========== -->
+  <!-- RESULTADO -->
   <section id="tab-resultado">
     <div id="resultado-contenido">
       <div class="card empty"><div class="big">📋</div><p>Complete la valoración y pulse <b>“Analizar”</b>.</p></div>
     </div>
   </section>
 
-  <!-- ========== DD BAYESIANO (NUEVO) ========== -->
+  <!-- DD BAYESIANO -->
   <section id="tab-bayes">
     <div class="card">
-      <h2>Diagnóstico diferencial bayesiano<small>Modelo Naive Bayes simplificado. Actualiza las probabilidades a posteriori según hallazgos clínicos.</small></h2>
+      <h2>Diagnóstico diferencial bayesiano<small>Modelo Naive Bayes simplificado. Actualiza probabilidades a posteriori según hallazgos.</small></h2>
 
       <div class="alert warn">
         <b>Modelo educativo</b>
-        Priors basados en literatura (NEJM 2017, GNEAUPP). Likelihoods aproximadas de patrones clínicos clásicos. No sustituye ITB, eco-Doppler, monofilamento ni juicio clínico.
+        Priors basados en literatura (NEJM 2017, GNEAUPP). Likelihoods aproximadas. No sustituye ITB, eco-Doppler, monofilamento ni juicio clínico.
       </div>
 
       <div class="grid2">
         <div>
-          <label class="f">Localización principal</label>
+          <label class="f">Localización</label>
           <select id="b_loc">
             <option value="none">No especificada</option>
             <option value="maleolar_med">Maleolar medial / gaiter</option>
@@ -340,8 +344,8 @@
           <select id="b_itb">
             <option value="none">No valorado</option>
             <option value="normal">Normal (0,9-1,3)</option>
-            <option value="bajo">&lt; 0,9 (enfermedad arterial)</option>
-            <option value="alto">&gt; 1,3 (posible falso elevado)</option>
+            <option value="bajo">Menor de 0,9 (enfermedad arterial)</option>
+            <option value="alto">Mayor de 1,3 (posible falso elevado)</option>
           </select>
         </div>
         <div>
@@ -358,24 +362,24 @@
     </div>
   </section>
 
-  <!-- ========== CATÁLOGO ========== -->
+  <!-- CATÁLOGO -->
   <section id="tab-catalogo">
     <div class="card">
-      <h2>Catálogo de apósitos en España<small>Marcas comerciales, códigos y precios orientativos. Verifique siempre el precio y la disponibilidad en su centro.</small></h2>
+      <h2>Catálogo de apósitos en España<small>Marcas comerciales, códigos y precios orientativos. Verifique siempre en su centro.</small></h2>
 
       <div class="alert info">
         <b>Cómo usar esta tabla</b>
-        Los códigos son referencias autonómicas (SESPA, UCL Comunidad Valenciana, SAS Andalucía). Los precios son orientativos y proceden de contratos públicos; no son precios oficiales únicos.
+        Los códigos son referencias autonómicas (SESPA, UCL Comunidad Valenciana, SAS). Los precios son orientativos de contratos públicos; no son precios oficiales únicos.
       </div>
 
       <h3 style="font-size:.95rem;color:var(--verde-osc);margin:18px 0 6px">💧 Hidrogeles</h3>
       <div class="table-wrap"><table class="cat">
         <thead><tr><th>Marca</th><th>Formato</th><th>Uso</th><th>Precio orient.</th></tr></thead>
         <tbody>
-          <tr><td><b>NU-GEL</b></td><td>Gel amorfo 15 g / 25 g</td><td>Necrosis seca, esfacelo, desbridamiento autolítico</td><td class="price">4-8 €</td></tr>
-          <tr><td><b>INTRASITE GEL</b></td><td>Gel amorfo 8 g / 15 g / 25 g</td><td>Necrosis seca, esfacelo</td><td class="price">5-10 €</td></tr>
-          <tr><td><b>PURILON</b></td><td>Gel 8 g / 15 g</td><td>Necrosis seca, esfacelo</td><td class="price">5-9 €</td></tr>
-          <tr><td><b>HYDROCLEAN</b></td><td>Gel 8 g / 15 g</td><td>Necrosis seca, esfacelo</td><td class="price">4-8 €</td></tr>
+          <tr><td><b>NU-GEL</b></td><td>Gel 15 g / 25 g</td><td>Necrosis seca, esfacelo</td><td class="price">4-8 €</td></tr>
+          <tr><td><b>INTRASITE GEL</b></td><td>Gel 8 / 15 / 25 g</td><td>Necrosis seca, esfacelo</td><td class="price">5-10 €</td></tr>
+          <tr><td><b>PURILON</b></td><td>Gel 8 / 15 g</td><td>Necrosis seca, esfacelo</td><td class="price">5-9 €</td></tr>
+          <tr><td><b>HYDROCLEAN</b></td><td>Gel 8 / 15 g</td><td>Necrosis seca, esfacelo</td><td class="price">4-8 €</td></tr>
         </tbody>
       </table></div>
 
@@ -418,7 +422,7 @@
         </tbody>
       </table></div>
 
-      <h3 style="font-size:.95rem;color:var(--verde-osc);margin:22px 0 6px">⚡ Plata (antimicrobianos)</h3>
+      <h3 style="font-size:.95rem;color:var(--verde-osc);margin:22px 0 6px">⚡ Plata</h3>
       <div class="table-wrap"><table class="cat">
         <thead><tr><th>Marca</th><th>Formato</th><th>Uso</th><th>Precio orient.</th></tr></thead>
         <tbody>
@@ -464,7 +468,7 @@
         <thead><tr><th>Marca</th><th>Tipo</th><th>Uso</th><th>Precio orient.</th></tr></thead>
         <tbody>
           <tr><td><b>PROFORE</b></td><td>Sistema multicapa</td><td>Úlcera venosa, ITB ≥ 0,9</td><td class="price">8-20 €</td></tr>
-          <tr><td><b>JOBST ULTCER CARE</b></td><td>Sistema ajustable (velcro)</td><td>Úlcera venosa, ITB ≥ 0,9</td><td class="price">40-80 €</td></tr>
+          <tr><td><b>JOBST ULCER CARE</b></td><td>Sistema ajustable (velcro)</td><td>Úlcera venosa, ITB ≥ 0,9</td><td class="price">40-80 €</td></tr>
           <tr><td><b>ROSIDAL</b></td><td>Venda corta elasticidad</td><td>Úlcera venosa, ITB ≥ 0,9</td><td class="price">10-25 €</td></tr>
           <tr><td><b>TENSOPRESS</b></td><td>Venda cohesiva</td><td>Úlcera venosa, ITB ≥ 0,9</td><td class="price">5-15 €</td></tr>
         </tbody>
@@ -476,7 +480,7 @@
     </div>
   </section>
 
-  <!-- ========== MIEL Y LARVAS ========== -->
+  <!-- MIEL Y LARVAS -->
   <section id="tab-internacional">
     <div class="card">
       <h2>Terapias internacionales: miel médica y larvas<small>Mecanismo, evidencia, productos comerciales y estatus regulatorio.</small></h2>
@@ -491,7 +495,7 @@
 
       <p style="font-size:.9rem"><b>Evidencia:</b></p>
       <ul style="font-size:.88rem">
-        <li><b>Quemaduras de espesor parcial:</b> evidencia de <b>alta calidad</b> (Cochrane 2015, Jull et al.) de cicatrización más rápida con miel vs apósitos de poliuretano.</li>
+        <li><b>Quemaduras de espesor parcial:</b> evidencia de <b>alta calidad</b> (Cochrane 2015, Jull et al.) de cicatrización más rápida con miel frente a apósitos de poliuretano.</li>
         <li><b>Heridas quirúrgicas infectadas:</b> puede cicatrizar más rápido que comparadores.</li>
         <li><b>Úlceras crónicas y pie diabético:</b> evidencia <b>menos consistente</b>. IWGDF 2023 no la recomienda como adyuvante estándar.</li>
       </ul>
@@ -502,7 +506,7 @@
         <tbody>
           <tr><td><b>MEDIHONEY</b></td><td>Hidrogel, tul, apósito</td><td>Miel de Manuka. Distribuido en España por PRIM S.A.</td></tr>
           <tr><td><b>ACTIVON / ACTILITE</b></td><td>Tul, gel, tubo</td><td>Advancis Medical. Miel de Manuka grado médico.</td></tr>
-          <tr><td><b>L-MESITRAN</b></td><td>Hidrogel, tul, apósito</td><td>Miel al 30%. Marcado CE.</td></tr>
+          <tr><td><b>L-MESITRAN</b></td><td>Hidrogel, tul, apósito</td><td>Miel al 30 %. Marcado CE.</td></tr>
         </tbody>
       </table></div>
 
@@ -516,7 +520,7 @@
 
       <p style="font-size:.9rem"><b>Evidencia:</b></p>
       <ul style="font-size:.88rem">
-        <li><b>Desbridamiento:</b> metaanálisis 2025 (8 ECA): puede ser más eficaz (RR 2,17) pero sin significación (p=0,09).</li>
+        <li><b>Desbridamiento:</b> metaanálisis 2025 (8 ECA): puede ser más eficaz (RR 2,17) pero sin significación (p = 0,09).</li>
         <li><b>Comparado con hidrogel:</b> desbrida más rápido en úlceras venosas.</li>
         <li><b>Pie diabético:</b> evidencia limitada; IWGDF no la recomienda de rutina.</li>
       </ul>
@@ -525,36 +529,36 @@
       <div class="table-wrap"><table class="cat">
         <thead><tr><th>Producto</th><th>País</th><th>Formato</th><th>Coste orient.</th><th>España</th></tr></thead>
         <tbody>
-          <tr><td><b>LarvE®</b> (Zoobiotic)</td><td>UK</td><td>Larvas libres (frasco 300) o biobolsa</td><td>~£58/frasco</td><td>Uso compasivo (RD 1015/2009)</td></tr>
-          <tr><td><b>BioFOAM®</b></td><td>UK</td><td>Kit con larvas en espuma</td><td>Desde ~£82</td><td>No comercializado de forma rutinaria</td></tr>
+          <tr><td><b>LarvE®</b> (Zoobiotic)</td><td>UK</td><td>Larvas libres (frasco 300) o biobolsa</td><td>≈ £58/frasco</td><td>Uso compasivo (RD 1015/2009)</td></tr>
+          <tr><td><b>BioFOAM®</b></td><td>UK</td><td>Kit con larvas en espuma</td><td>Desde ≈ £82</td><td>No comercializado de forma rutinaria</td></tr>
         </tbody>
       </table></div>
 
       <div class="alert info" style="margin-top:12px">
         <b>Uso en el NHS (UK)</b>
-        La terapia larval está en el formulario del NHS para desbridamiento de tejido esfacelado o necrótico, bajo supervisión de enfermería especializada. Representa ~0,02% del gasto del NHS en cuidado de heridas.
+        La terapia larval está en el formulario del NHS para desbridamiento de tejido esfacelado o necrótico, bajo supervisión de enfermería especializada. Representa ≈ 0,02 % del gasto del NHS en cuidado de heridas.
       </div>
     </div>
   </section>
 
-  <!-- ========== EVIDENCIA ========== -->
+  <!-- EVIDENCIA -->
   <section id="tab-evidencia">
     <div class="card">
       <h2>Evidencia científica y referencias<small>Base de las recomendaciones y alertas.</small></h2>
 
-      <ul class="ref-list" style="font-size:.88rem">
-        <li><b>Alginatos</b>: apósito primario más efectivo para reducir tamaño de la herida en metaanálisis en red (38 ECA).<span style="color:var(--gris);font-size:.75rem;display:block">Burhan et al., 2025.</span></li>
-        <li><b>Espumas e hidrocoloides</b>: superiores a cura seca tradicional.<span style="color:var(--gris);font-size:.75rem;display:block">EPUAP/NPIAP/PPPIA.</span></li>
-        <li><b>Plata</b>: evidencia limitada para cicatrización; reservar para infección confirmada (10-14 días).<span style="color:var(--gris);font-size:.75rem;display:block">Cochrane; NICE 2025.</span></li>
-        <li><b>Miel médica</b>: alta calidad en quemaduras de espesor parcial.<span style="color:var(--gris);font-size:.75rem;display:block">Jull et al., Cochrane 2015.</span></li>
-        <li><b>Terapia larval</b>: puede desbridar más rápido que hidrogel; evidencia insuficiente en pie diabético.<span style="color:var(--gris);font-size:.75rem;display:block">Metaanálisis 2025; IWGDF 2023.</span></li>
+      <ul style="font-size:.88rem;line-height:1.55">
+        <li><b>Alginatos</b>: apósito primario más efectivo para reducir tamaño de la herida en metaanálisis en red (38 ECA). <span style="color:var(--gris);font-size:.75rem">Burhan et al., 2025.</span></li>
+        <li><b>Espumas e hidrocoloides</b>: superiores a cura seca tradicional. <span style="color:var(--gris);font-size:.75rem">EPUAP/NPIAP/PPPIA.</span></li>
+        <li><b>Plata</b>: evidencia limitada para cicatrización; reservar para infección confirmada (10-14 días). <span style="color:var(--gris);font-size:.75rem">Cochrane; NICE 2025.</span></li>
+        <li><b>Miel médica</b>: alta calidad en quemaduras de espesor parcial. <span style="color:var(--gris);font-size:.75rem">Jull et al., Cochrane 2015.</span></li>
+        <li><b>Terapia larval</b>: puede desbridar más rápido que hidrogel; evidencia insuficiente en pie diabético. <span style="color:var(--gris);font-size:.75rem">Metaanálisis 2025; IWGDF 2023.</span></li>
       </ul>
 
       <h3 style="font-size:.95rem;color:var(--verde-osc);margin:20px 0 6px">📚 Referencias</h3>
       <ol style="font-size:.82rem;line-height:1.55">
         <li>Burhan A, et al. <i>Network Meta-Analysis of Wound Dressings</i>. 2025.</li>
         <li>Jull AB, et al. <i>Honey as a topical treatment for wounds</i>. Cochrane Database Syst Rev. 2015;3:CD005083.</li>
-        <li>Lam T, et al. <i>Efficacy of Larval Therapy for Wounds: SR & MA</i>. J Clin Med. 2025;14(2):315.</li>
+        <li>Lam T, et al. <i>Efficacy of Larval Therapy for Wounds: SR &amp; MA</i>. J Clin Med. 2025;14(2):315.</li>
         <li>IWGDF. <i>Guidelines on the prevention and management of foot problems in diabetes</i>. 2023/2024.</li>
         <li>GNEAUPP. <i>Esquema de productos sanitarios para el cuidado de heridas</i>. 2024.</li>
         <li>Consejo General de Enfermería. <i>Listado de productos para cura de heridas con código SESPA (Asturias)</i>.</li>
@@ -569,7 +573,7 @@
     </div>
   </section>
 
-  <!-- ========== BOT ========== -->
+  <!-- BOT -->
   <section id="tab-bot">
     <div class="card">
       <h2>Bot de tratamientos<small>Pregunte por apósitos, compresión, infección, miel, larvas, códigos y costes.</small></h2>
@@ -596,7 +600,7 @@
     <div class="disclaimer">El bot ofrece información general basada en guías clínicas. No prescribe ni sustituye la valoración profesional.</div>
   </section>
 
-  <!-- ========== GUÍA ========== -->
+  <!-- GUÍA -->
   <section id="tab-info">
     <div class="card">
       <h2>Guía rápida de bolsillo<small>Diferencias clave y reglas de seguridad.</small></h2>
@@ -611,16 +615,16 @@
           <tr><td>Dolor</td><td>Intenso, empeora al elevar</td><td>Leve, mejora al elevar</td><td>Ausente (neuropatía)</td></tr>
           <tr><td>Pulsos</td><td>Débiles/ausentes</td><td>Presentes</td><td>Presentes</td></tr>
           <tr><td>Piel</td><td>Fría, pálida, brillante</td><td>Edema, ocre, eczema</td><td>Callos</td></tr>
-          <tr><td>ITB</td><td>&lt; 0,9</td><td>0,9-1,3</td><td>Normal o falsamente elevado</td></tr>
+          <tr><td>ITB</td><td>Menor de 0,9</td><td>0,9-1,3</td><td>Normal o falsamente elevado</td></tr>
           <tr><td>Compresión</td><td><b>Contraindicada</b></td><td>Pilar del tratamiento</td><td>Según componente vascular</td></tr>
         </tbody>
       </table></div>
 
       <h3 style="color:var(--verde-osc);margin-top:18px">Banderas rojas</h3>
       <ul style="padding-left:20px;font-size:.88rem">
-        <li><b>Infección</b> (pus, mal olor, fiebre): valoración médica para antibiótico. Plata/PHMB temporal (10-14 días).</li>
+        <li><b>Infección</b> (pus, mal olor, fiebre): valoración médica para antibiótico. Plata/PHMB/DACC temporal (10-14 días).</li>
         <li><b>Isquemia crítica</b>: <b>NO compresión</b>, derivación vascular urgente.</li>
-        <li><b>ITB &lt; 0,9</b>: compresión contraindicada.</li>
+        <li><b>ITB menor de 0,9</b>: compresión contraindicada.</li>
         <li><b>Deterioro rápido</b>: derivar a especialista.</li>
       </ul>
 
@@ -643,17 +647,32 @@
 
 </main>
 
+<div class="offline" id="offline-ind">📴 Modo offline</div>
+
 <script>
 /* ============================================================
-   PWA
+   1. PWA: manifest + service worker (best-effort)
    ============================================================ */
 (function initPWA(){
   const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0b6b5b"/><path d="M256 96c-70 0-128 58-128 128 0 92 128 192 128 192s128-100 128-192c0-70-58-128-128-128z" fill="#fff"/><circle cx="256" cy="224" r="42" fill="#0b6b5b"/></svg>`;
   const iconURI = 'data:image/svg+xml,' + encodeURIComponent(iconSVG);
+
+  // Apple touch icon
+  const apple = document.getElementById('apple-icon');
+  if (apple) apple.href = iconURI;
+
+  // Manifest embebido
   const manifest = {
-    name: "WoundDecision v4", short_name: "WoundDecision",
-    start_url: ".", display: "standalone", background_color: "#f4f7f6",
-    theme_color: "#0b6b5b", lang: "es",
+    name: "WoundDecision · Apoyo Clínico",
+    short_name: "WoundDecision",
+    description: "Apoyo a la decisión clínica en úlceras venosas, arteriales y neuropáticas.",
+    start_url: ".",
+    scope: ".",
+    display: "standalone",
+    orientation: "portrait",
+    background_color: "#f4f7f6",
+    theme_color: "#0b6b5b",
+    lang: "es",
     icons: [
       { src: iconURI, sizes: "192x192", type: "image/svg+xml", purpose: "any" },
       { src: iconURI, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
@@ -663,182 +682,239 @@
     const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
     document.getElementById('manifest-link').href = URL.createObjectURL(mBlob);
   } catch(e){}
+
+  // Service worker best-effort
   if ('serviceWorker' in navigator) {
     try {
-      const swCode = `const C='wd-v4';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open(C).then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{try{c.put(e.request,res.clone())}catch(_){}return res}).catch(()=>r))))});`;
+      const swCode = `
+        const C='wd-v5';
+        self.addEventListener('install', e => self.skipWaiting());
+        self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+        self.addEventListener('fetch', e => {
+          if (e.request.method !== 'GET') return;
+          e.respondWith(
+            caches.open(C).then(c => c.match(e.request).then(r => {
+              const f = fetch(e.request).then(res => {
+                try { c.put(e.request, res.clone()); } catch(_){}
+                return res;
+              }).catch(() => r);
+              return r || f;
+            }))
+          );
+        });
+      `;
       const swBlob = new Blob([swCode], {type:'application/javascript'});
       navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
     } catch(e){}
   }
+
+  // Indicador offline
+  const ind = document.getElementById('offline-ind');
+  function updateOnline(){
+    if (ind) ind.classList.toggle('show', !navigator.onLine);
+  }
+  window.addEventListener('online', updateOnline);
+  window.addEventListener('offline', updateOnline);
+  updateOnline();
 })();
 
 /* ============================================================
-   Navegación
+   2. Navegación
    ============================================================ */
 const nav = document.getElementById('nav');
-nav.addEventListener('click', e=>{
+nav.addEventListener('click', e => {
   const b = e.target.closest('button[data-tab]');
-  if(!b) return;
-  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  if (!b) return;
+  document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
-  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('tab-' + b.dataset.tab);
+  if (target) target.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
 });
 function goTab(name){
   const b = nav.querySelector(`button[data-tab="${name}"]`);
-  if(b) b.click();
+  if (b) b.click();
 }
 
 /* ============================================================
-   Utilidades
+   3. Utilidades
    ============================================================ */
 const $ = id => document.getElementById(id);
 const val = id => ($(id) ? $(id).value.trim() : '');
-const checked = (contId) => Array.from(document.querySelectorAll(`#${contId} input:checked`)).map(i=>i.value);
+const checked = contId => Array.from(document.querySelectorAll(`#${contId} input:checked`)).map(i => i.value);
 function clearChips(contId){
-  document.querySelectorAll(`#${contId} input:checked`).forEach(i=>i.checked=false);
+  document.querySelectorAll(`#${contId} input:checked`).forEach(i => i.checked = false);
 }
 
 /* ============================================================
-   Clasificación (scoring)
+   4. Clasificación por scoring
    ============================================================ */
 function classify(d){
   let v=0, a=0, n=0;
-  if(['maleolo_interno','tercio_inferior'].includes(d.loc)) v+=3;
-  if(['dedos','talon','prominencia_pie','dorso_pie'].includes(d.loc)) a+=3;
-  if(['plantar','prominencia_pie'].includes(d.loc)) n+=2;
-  if(d.pain==='venoso') v+=3;
-  if(d.pain==='arterial') a+=3;
-  if(d.pain==='neuro') n+=3;
-  if(d.pain==='ausente') n+=2;
-  if(d.skin.includes('edema')) v+=1;
-  if(d.skin.includes('dermatitis')) v+=2;
-  if(d.skin.includes('caliente')) v+=1;
-  if(d.skin.includes('palid')) a+=2;
-  if(d.skin.includes('fria')) a+=1;
-  if(d.skin.includes('sin_vello')) a+=1;
-  if(d.pulses==='ausentes') a+=3;
-  if(d.pulses==='debiles') a+=2;
-  if(d.bed==='granulacion') v+=1;
-  if(d.bed==='necrosis') a+=2;
-  if(d.bed==='esfacelo') v+=0.5;
-  if(d.borders==='irregulares') v+=1;
-  if(d.borders==='sacabocados') a+=2;
-  if(d.borders==='callo') n+=3;
-  if(d.history.includes('diabetes')) n+=2;
-  if(d.history.includes('neuropatia')) n+=2;
-  if(d.history.includes('tvp')) v+=1;
-  if(d.history.includes('claudicacion')) a+=2;
-  if(d.itb !== null){
-    if(d.itb < 0.9) a+=3;
-    if(d.itb > 1.3) a+=1;
+
+  if (['maleolo_interno','tercio_inferior'].includes(d.loc)) v += 3;
+  if (['dedos','talon','prominencia_pie','dorso_pie'].includes(d.loc)) a += 3;
+  if (['plantar','prominencia_pie'].includes(d.loc)) n += 2;
+
+  if (d.pain === 'venoso') v += 3;
+  if (d.pain === 'arterial') a += 3;
+  if (d.pain === 'neuro') n += 3;
+  if (d.pain === 'ausente') n += 2;
+
+  if (d.skin.includes('edema')) v += 1;
+  if (d.skin.includes('dermatitis')) v += 2;
+  if (d.skin.includes('caliente')) v += 1;
+  if (d.skin.includes('palid')) a += 2;
+  if (d.skin.includes('fria')) a += 1;
+  if (d.skin.includes('sin_vello')) a += 1;
+
+  if (d.pulses === 'ausentes') a += 3;
+  if (d.pulses === 'debiles') a += 2;
+
+  if (d.bed === 'granulacion') v += 1;
+  if (d.bed === 'necrosis') a += 2;
+  if (d.bed === 'esfacelo') v += 0.5;
+
+  if (d.borders === 'irregulares') v += 1;
+  if (d.borders === 'sacabocados') a += 2;
+  if (d.borders === 'callo') n += 3;
+
+  if (d.history.includes('diabetes')) n += 2;
+  if (d.history.includes('neuropatia')) n += 2;
+  if (d.history.includes('tvp')) v += 1;
+  if (d.history.includes('claudicacion')) a += 2;
+
+  if (d.itb !== null){
+    if (d.itb < 0.9) a += 3;
+    if (d.itb > 1.3) a += 1;
   }
-  const scores = [{k:'v',s:v},{k:'a',s:a},{k:'n',s:n}].sort((x,y)=>y.s-x.s);
+
+  const scores = [{k:'v', s:v},{k:'a', s:a},{k:'n', s:n}].sort((x,y) => y.s - x.s);
   const top = scores[0], second = scores[1];
   let type = top.k;
   let mixed = false;
-  if(second.s > 0 && (top.s - second.s) <= 1 && top.s >= 3) mixed = true;
-  return {v,a,n,type,mixed,scores};
+  if (second.s > 0 && (top.s - second.s) <= 1 && top.s >= 3) mixed = true;
+
+  return {v, a, n, type, mixed, scores};
 }
 
 /* ============================================================
-   Banderas rojas
+   5. Banderas rojas
    ============================================================ */
 function redFlags(d, cls){
   const flags = [];
-  const inf = d.infection.filter(x=>x!=='ninguno');
-  if(inf.length >= 2 || inf.includes('pus') || inf.includes('fiebre')){
+  const inf = d.infection.filter(x => x !== 'ninguno');
+
+  if (inf.length >= 2 || inf.includes('pus') || inf.includes('fiebre')){
     flags.push({lvl:'danger', t:'Signos de infección',
       d:'Signos sugestivos de infección. <b>Valoración médica</b> para antibiótico sistémico. Apósito antimicrobiano (plata/PHMB/DACC) de forma <b>temporal</b> (10-14 días).'});
-  } else if(inf.length === 1){
+  } else if (inf.length === 1){
     flags.push({lvl:'warn', t:'Posible infección local incipiente',
       d:'Un signo aislado. Vigilar evolución y reforzar limpieza.'});
   }
-  if(d.pulses==='ausentes' && (d.pain==='arterial' || d.bed==='necrosis')){
+
+  if (d.pulses === 'ausentes' && (d.pain === 'arterial' || d.bed === 'necrosis')){
     flags.push({lvl:'danger', t:'Sospecha de isquemia crítica',
       d:'Pulsos ausentes con dolor en reposo y/o necrosis. <b>Contraindicada la compresión</b>. Derivación urgente a vascular.'});
   }
-  if(d.itb !== null && d.itb < 0.9){
-    flags.push({lvl:'danger', t:'ITB &lt; 0,9: compresión contraindicada',
+
+  if (d.itb !== null && d.itb < 0.9){
+    flags.push({lvl:'danger', t:'ITB menor de 0,9: compresión contraindicada',
       d:'Enfermedad arterial. <b>No aplicar vendaje compresivo</b>. Derivar a vascular.'});
   }
-  if(cls.mixed){
+
+  if (cls.mixed){
     flags.push({lvl:'info', t:'Componente mixto',
       d:'Valorar componente arterial antes de comprimir. Compresión solo si ITB ≥ 0,9 y bajo supervisión.'});
   }
+
   return flags;
 }
 
 /* ============================================================
-   Plan de cuidados
+   6. Plan de cuidados
    ============================================================ */
 function planFor(type, d, cls){
   const ex = d.exudate;
-  const inf = d.infection.filter(x=>x!=='ninguno').length > 0;
+  const inf = d.infection.filter(x => x !== 'ninguno').length > 0;
   const out = {objetivo:'', pilar:[], apósito:[], precauciones:[], derivacion:[]};
 
-  if(type==='v'){
+  if (type === 'v'){
     out.objetivo = 'Controlar la hipertensión venosa, reducir el edema y favorecer la cicatrización en ambiente húmedo.';
-    out.pilar = ['<b>Terapia compresiva</b> (pilar) si ITB ≥ 0,9: vendaje de corta elasticidad o sistema ajustable (≈40 mmHg).','Elevación de la pierna y ejercicio.','Cuidados de la piel perilesional.'];
-    if(ex==='bajo') out.apósito = ['Apósito <b>no adherente</b> o <b>hidrocoloide fino</b>.','Film transparente si se desea visualización.'];
-    else if(ex==='moderado') out.apósito = ['<b>Espuma de poliuretano</b> o <b>hidrocoloide</b>.','Hidrofibra si cavidad.'];
-    else out.apósito = ['<b>Espuma de alta absorción</b> o <b>alginato/hidrofibra</b>.','Apósito secundario absorbente.'];
-    if(inf) out.apósito.push('Añadir <b>plata</b> o <b>PHMB</b> temporal.');
-    out.precauciones = ['No comprimir si ITB &lt; 0,9 o pulsos ausentes.','Vigilar infección y dermatitis.'];
+    out.pilar = [
+      '<b>Terapia compresiva</b> (pilar) si ITB ≥ 0,9: vendaje de corta elasticidad o sistema ajustable (≈40 mmHg).',
+      'Elevación de la pierna y ejercicio.',
+      'Cuidados de la piel perilesional.'
+    ];
+    if (ex === 'bajo') out.apósito = ['Apósito <b>no adherente</b> o <b>hidrocoloide fino</b>.', 'Film transparente si se desea visualización.'];
+    else if (ex === 'moderado') out.apósito = ['<b>Espuma de poliuretano</b> o <b>hidrocoloide</b>.', 'Hidrofibra si cavidad.'];
+    else out.apósito = ['<b>Espuma de alta absorción</b> o <b>alginato/hidrofibra</b>.', 'Apósito secundario absorbente.'];
+    if (inf) out.apósito.push('Añadir <b>plata</b> o <b>PHMB</b> temporal.');
+    out.precauciones = ['No comprimir si ITB menor de 0,9 o pulsos ausentes.', 'Vigilar infección y dermatitis.'];
     out.derivacion = ['Si no mejora en 4-6 semanas: unidad de heridas/vascular.'];
   }
-  else if(type==='a'){
+  else if (type === 'a'){
     out.objetivo = 'Proteger la extremidad isquémica y facilitar la revascularización.';
-    out.pilar = ['<b>NO compresión.</b>','<b>Derivación a vascular</b> para revascularización.','Protección de la piel y control del dolor.'];
-    if(d.bed==='necrosis') out.apósito = ['<b>Hidrogel</b> para desbridamiento autolítico.','<b>Evitar desbridamiento cortante</b> agresivo.','Apósito <b>no adherente</b> + gasa.'];
-    else if(ex==='alto') out.apósito = ['<b>Espuma no adherente</b> o <b>alginato</b> si cavidad.','Apósito secundario.'];
-    else out.apósito = ['Apósito <b>no adherente</b> o <b>silicona</b>.','Gasa secundaria.'];
-    if(inf) out.apósito.push('Si infección: <b>plata</b> o <b>PHMB</b> temporal.');
-    out.precauciones = ['<b>Contraindicación absoluta de compresión.</b>','No desbridar agresivamente sin valoración vascular.','Evitar apósitos oclusivos.'];
-    out.derivacion = ['Derivación <b>urgente</b> a vascular si dolor en reposo, necrosis o ITB &lt; 0,9.'];
+    out.pilar = ['<b>NO compresión.</b>', '<b>Derivación a vascular</b> para revascularización.', 'Protección de la piel y control del dolor.'];
+    if (d.bed === 'necrosis') out.apósito = ['<b>Hidrogel</b> para desbridamiento autolítico.', '<b>Evitar desbridamiento cortante</b> agresivo.', 'Apósito <b>no adherente</b> + gasa.'];
+    else if (ex === 'alto') out.apósito = ['<b>Espuma no adherente</b> o <b>alginato</b> si cavidad.', 'Apósito secundario.'];
+    else out.apósito = ['Apósito <b>no adherente</b> o <b>silicona</b>.', 'Gasa secundaria.'];
+    if (inf) out.apósito.push('Si infección: <b>plata</b> o <b>PHMB</b> temporal.');
+    out.precauciones = ['<b>Contraindicación absoluta de compresión.</b>', 'No desbridar agresivamente sin valoración vascular.', 'Evitar apósitos oclusivos.'];
+    out.derivacion = ['Derivación <b>urgente</b> a vascular si dolor en reposo, necrosis o ITB menor de 0,9.'];
   }
-  else if(type==='n'){
+  else if (type === 'n'){
     out.objetivo = 'Descarga de la presión, control del callo y cicatrización en ambiente húmedo.';
-    out.pilar = ['<b>Descarga</b> (calzado terapéutico, ortesis, yeso de contacto total).','Exploración neuropática y vascular periódica.','Control glucémico y educación.','Desbridamiento del callo.'];
-    if(ex==='bajo') out.apósito = ['Apósito de <b>contacto básico</b> (gasa simple o no adherente).'];
-    else if(ex==='moderado') out.apósito = ['<b>Espuma</b> o apósito absorbente no adherente.'];
+    out.pilar = ['<b>Descarga</b> (calzado terapéutico, ortesis, yeso de contacto total).', 'Exploración neuropática y vascular periódica.', 'Control glucémico y educación.', 'Desbridamiento del callo.'];
+    if (ex === 'bajo') out.apósito = ['Apósito de <b>contacto básico</b> (gasa simple o no adherente).'];
+    else if (ex === 'moderado') out.apósito = ['<b>Espuma</b> o apósito absorbente no adherente.'];
     else out.apósito = ['<b>Espuma de alta absorción</b> o <b>alginato/hidrofibra</b>.'];
     out.apósito.push('Evitar <b>colágeno y antimicrobianos rutinarios</b>; reservar para infección confirmada.');
-    out.precauciones = ['No comprimir sin valoración vascular.','La descarga es imprescindible.','Vigilar infección (puede no haber signos clásicos).'];
+    out.precauciones = ['No comprimir sin valoración vascular.', 'La descarga es imprescindible.', 'Vigilar infección (puede no haber signos clásicos).'];
     out.derivacion = ['Derivar a unidad de pie diabético si no mejora en 2-4 semanas o hay infección.'];
   }
   else {
     out.objetivo = 'Abordaje individualizado del componente venoso y arterial.';
-    out.pilar = ['Valoración vascular previa (ITB, eco-Doppler).','Compresión <b>solo si ITB ≥ 0,9</b> y bajo supervisión.'];
-    out.apósito = ['Apósito <b>no adherente</b> o <b>espuma</b> según exudado.','Hidrogel si necrosis seca.'];
-    out.precauciones = ['No comprimir si ITB &lt; 0,9.','Vigilar perfusión distal.'];
+    out.pilar = ['Valoración vascular previa (ITB, eco-Doppler).', 'Compresión <b>solo si ITB ≥ 0,9</b> y bajo supervisión.'];
+    out.apósito = ['Apósito <b>no adherente</b> o <b>espuma</b> según exudado.', 'Hidrogel si necrosis seca.'];
+    out.precauciones = ['No comprimir si ITB menor de 0,9.', 'Vigilar perfusión distal.'];
     out.derivacion = ['Derivar a vascular para valoración del componente arterial.'];
   }
+
   return out;
 }
 
 /* ============================================================
-   Render resultado
+   7. Render resultado
    ============================================================ */
 function renderResult(){
   const d = {
-    loc: val('loc'), pain: val('pain'), pulses: val('pulses'), bed: val('bed'),
-    borders: val('borders'), exudate: val('exudate'),
-    skin: checked('skin'), infection: checked('infection'), history: checked('history'),
-    itb: val('itb')==='' ? null : parseFloat(val('itb'))
+    loc: val('loc'),
+    pain: val('pain'),
+    pulses: val('pulses'),
+    bed: val('bed'),
+    borders: val('borders'),
+    exudate: val('exudate'),
+    skin: checked('skin'),
+    infection: checked('infection'),
+    history: checked('history'),
+    itb: val('itb') === '' ? null : parseFloat(val('itb'))
   };
+
   const missing = [];
-  if(!d.loc) missing.push('localización');
-  if(!d.pain) missing.push('dolor');
-  if(!d.pulses) missing.push('pulsos');
-  if(!d.bed) missing.push('lecho');
-  if(!d.exudate) missing.push('exudado');
-  if(missing.length){
+  if (!d.loc) missing.push('localización');
+  if (!d.pain) missing.push('dolor');
+  if (!d.pulses) missing.push('pulsos');
+  if (!d.bed) missing.push('lecho');
+  if (!d.exudate) missing.push('exudado');
+
+  if (missing.length){
     $('resultado-contenido').innerHTML = `<div class="card"><div class="alert warn"><b>Faltan datos</b>Complete: ${missing.join(', ')}.</div></div>`;
     goTab('resultado');
     return;
   }
+
   const cls = classify(d);
   const flags = redFlags(d, cls);
   const plan = planFor(cls.type, d, cls);
@@ -856,9 +932,9 @@ function renderResult(){
     <p class="hint">Diferencias ≤ 1 punto entre los dos primeros sugieren componente mixto.</p>
   </div>`;
 
-  if(flags.length){
+  if (flags.length){
     html += `<div class="card"><h2>⚠️ Alertas de seguridad</h2>`;
-    flags.forEach(f=>{ html += `<div class="alert ${f.lvl}"><b>${f.t}</b>${f.d}</div>`; });
+    flags.forEach(f => { html += `<div class="alert ${f.lvl}"><b>${f.t}</b>${f.d}</div>`; });
     html += `</div>`;
   } else {
     html += `<div class="card"><div class="alert ok"><b>Sin banderas rojas</b>Continúe con el plan y reevalúe periódicamente.</div></div>`;
@@ -869,13 +945,13 @@ function renderResult(){
     <h3><span class="ico" style="background:var(--verde-claro);color:var(--verde-osc)">🎯</span> Objetivo</h3>
     <p style="font-size:.9rem;margin:4px 0 0">${plan.objetivo}</p>
     <h3><span class="ico" style="background:var(--azul-claro);color:var(--azul)">🧭</span> Pilar</h3>
-    <ul>${plan.pilar.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <ul>${plan.pilar.map(x => `<li>${x}</li>`).join('')}</ul>
     <h3><span class="ico" style="background:var(--verde-claro);color:var(--verde-osc)">🩹</span> Apósito</h3>
-    <ul>${plan.apósito.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <ul>${plan.apósito.map(x => `<li>${x}</li>`).join('')}</ul>
     <h3><span class="ico" style="background:var(--ambar-claro);color:var(--ambar)">⚠️</span> Precauciones</h3>
-    <ul>${plan.precauciones.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <ul>${plan.precauciones.map(x => `<li>${x}</li>`).join('')}</ul>
     <h3><span class="ico" style="background:var(--rojo-claro);color:var(--rojo)">🚑</span> Derivación</h3>
-    <ul>${plan.derivacion.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <ul>${plan.derivacion.map(x => `<li>${x}</li>`).join('')}</ul>
     <p class="hint" style="margin-top:12px">💡 Consulte <b>“Catálogo”</b> para marcas y códigos, o <b>“Miel y larvas”</b> para terapias alternativas.</p>
   </div>`;
 
@@ -886,19 +962,21 @@ function renderResult(){
 }
 
 /* ============================================================
-   Botones valoración
+   8. Botones de valoración
    ============================================================ */
 $('btn-analizar').addEventListener('click', renderResult);
-$('btn-limpiar').addEventListener('click', ()=>{
-  ['loc','pain','pulses','bed','borders','exudate'].forEach(id=>$(id).value='');
-  $('itb').value='';
-  clearChips('skin'); clearChips('infection'); clearChips('history');
+$('btn-limpiar').addEventListener('click', () => {
+  ['loc','pain','pulses','bed','borders','exudate'].forEach(id => $(id).value = '');
+  $('itb').value = '';
+  clearChips('skin');
+  clearChips('infection');
+  clearChips('history');
   $('resultado-contenido').innerHTML = `<div class="card empty"><div class="big">📋</div><p>Complete la valoración y pulse <b>“Analizar”</b>.</p></div>`;
   goTab('valoracion');
 });
 
 /* ============================================================
-   DD BAYESIANO (mejorado)
+   9. DD bayesiano
    ============================================================ */
 function calcularBayes(){
   let prior = { venosa:0.62, arterial:0.10, neuropatica:0.15, mixta:0.08, upp:0.03, otras:0.02 };
@@ -940,25 +1018,26 @@ function calcularBayes(){
     }
   };
 
-  // Ajuste prior por diabetes
-  if($('b_dm').value === 'si'){
+  if ($('b_dm').value === 'si'){
     prior.neuropatica += 0.20;
     prior.arterial += 0.05;
     prior.mixta += 0.03;
     prior.venosa -= 0.20;
     prior.upp -= 0.03;
     prior.otras -= 0.05;
-    let s = Object.values(prior).reduce((a,b)=>a+b,0);
-    for(let k in prior) prior[k] = Math.max(0.01, prior[k]/s);
+    let s = Object.values(prior).reduce((a,b) => a + b, 0);
+    for (let k in prior) prior[k] = Math.max(0.01, prior[k] / s);
   }
 
   let post = {...prior};
+
   function update(ev, type){
-    if(ev === 'none' || !L[type] || !L[type][ev]) return;
-    for(let eti in post){
+    if (ev === 'none' || !L[type] || !L[type][ev]) return;
+    for (let eti in post){
       post[eti] *= (L[type][ev][eti] || 0.25);
     }
   }
+
   update($('b_loc').value, 'loc');
   update($('b_dolor').value, 'dolor');
   update($('b_pulsos').value, 'pulsos');
@@ -967,30 +1046,29 @@ function calcularBayes(){
   update($('b_bordes').value, 'bordes');
   update($('b_itb').value, 'itb');
 
-  let total = Object.values(post).reduce((a,b)=>a+b,0);
-  for(let k in post) post[k] = (post[k]/total)*100;
-  const sorted = Object.entries(post).sort((a,b)=>b[1]-a[1]);
+  let total = Object.values(post).reduce((a,b) => a + b, 0);
+  for (let k in post) post[k] = (post[k] / total) * 100;
 
+  const sorted = Object.entries(post).sort((a,b) => b[1] - a[1]);
   const colores = {venosa:'#5b3f9e', arterial:'#c0392b', neuropatica:'#b9770e', mixta:'#1f618d', upp:'#0b6b5b', otras:'#5d6d7e'};
   const nombres = {venosa:'Venosa', arterial:'Arterial', neuropatica:'Neuropática (DFU)', mixta:'Mixta', upp:'Úlcera por presión', otras:'Otras'};
 
   let html = `<h3 style="margin-top:0">Probabilidades a posteriori</h3>`;
-  sorted.forEach(([eti, p])=>{
+  sorted.forEach(([eti, p]) => {
     const c = colores[eti] || '#5d6d7e';
     html += `<div class="prob-row">
-      <div class="name"><span>${nombres[eti]||eti}</span><span>${p.toFixed(1)}%</span></div>
+      <div class="name"><span>${nombres[eti] || eti}</span><span>${p.toFixed(1)}%</span></div>
       <div class="prob-bar"><div style="width:${p}%;background:${c}"></div></div>
     </div>`;
   });
 
-  // Recomendaciones según mayor prob
   const top = sorted[0][0];
   let recs = [];
-  if(top==='venosa') recs.push('Priorizar <b>eco-Doppler venoso</b> y valoración de compresión (ITB ≥ 0,9).');
-  if(top==='arterial') recs.push('Priorizar <b>ITB y eco-Doppler arterial</b>. <b>NO comprimir</b> hasta confirmación vascular.');
-  if(top==='neuropatica') recs.push('Priorizar <b>monofilamento 10 g</b>, exploración vascular y descarga.');
-  if(top==='mixta') recs.push('Componente mixto probable: valorar vascular antes de comprimir. Compresión solo si ITB ≥ 0,9.');
-  if(top==='upp') recs.push('Valorar <b>escala Braden</b> y alivio de presión (SEMP).');
+  if (top === 'venosa') recs.push('Priorizar <b>eco-Doppler venoso</b> y valoración de compresión (ITB ≥ 0,9).');
+  if (top === 'arterial') recs.push('Priorizar <b>ITB y eco-Doppler arterial</b>. <b>NO comprimir</b> hasta confirmación vascular.');
+  if (top === 'neuropatica') recs.push('Priorizar <b>monofilamento 10 g</b>, exploración vascular y descarga.');
+  if (top === 'mixta') recs.push('Componente mixto probable: valorar vascular antes de comprimir. Compresión solo si ITB ≥ 0,9.');
+  if (top === 'upp') recs.push('Valorar <b>escala Braden</b> y alivio de presión (SEMP).');
 
   html += `<div class="alert info" style="margin-top:12px"><b>Recomendación de pruebas</b>${recs.join('<br>')}</div>`;
   html += `<p class="hint">Modelo Naive Bayes educativo. Likelihoods aproximadas de patrones clínicos (Singer et al., NEJM 2017; GNEAUPP). No es un clasificador validado. No sustituye el juicio clínico.</p>`;
@@ -1002,10 +1080,11 @@ function calcularBayes(){
 $('btn-bayes').addEventListener('click', calcularBayes);
 
 /* ============================================================
-   BOT
+   10. Bot
    ============================================================ */
 const chat = $('chat');
 const botInput = $('bot-input');
+
 function addMsg(text, who){
   const div = document.createElement('div');
   div.className = 'msg ' + who;
@@ -1013,13 +1092,14 @@ function addMsg(text, who){
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
-function typing(cb, delay=500){
+
+function typing(cb, delay = 500){
   const t = document.createElement('div');
   t.className = 'msg bot typing';
   t.textContent = 'Escribiendo…';
   chat.appendChild(t);
   chat.scrollTop = chat.scrollHeight;
-  setTimeout(()=>{ t.remove(); cb(); }, delay);
+  setTimeout(() => { t.remove(); cb(); }, delay);
 }
 
 const KB = [
@@ -1030,11 +1110,11 @@ const KB = [
   { keys:['diabético','diabetico','neuropática','neuropatia','pie diabético','dfu'],
     reply:`<b>Pie diabético / neuropática</b>\n• Planta/prominencias, callo, pérdida de sensibilidad.\n• <b>Pilar: descarga.</b>\n• Apósito de contacto básico en ambiente húmedo.\n• Evitar colágeno y antimicrobianos rutinarios.` },
   { keys:['compresión','compresion','venda','comprimir'],
-    reply:`<b>Reglas de compresión</b>\n• <b>Indicada</b> en úlcera venosa con ITB ≥ 0,9 (≈40 mmHg).\n• <b>Contraindicada</b> si ITB &lt; 0,9, pulsos ausentes o isquemia.\n• En mixta: valorar componente arterial antes de comprimir.` },
+    reply:`<b>Reglas de compresión</b>\n• <b>Indicada</b> en úlcera venosa con ITB ≥ 0,9 (≈40 mmHg).\n• <b>Contraindicada</b> si ITB menor de 0,9, pulsos ausentes o isquemia.\n• En mixta: valorar componente arterial antes de comprimir.` },
   { keys:['infección','infeccion','pus','olor','purulento'],
     reply:`<b>Infección</b>\n• Aumento del dolor, eritema, pus, mal olor, fiebre.\n• <b>Valoración médica</b> para antibiótico sistémico.\n• Apósito con <b>plata</b>, <b>PHMB</b> o <b>DACC</b> temporal (10-14 días).\n• Mal olor: carbón activado.` },
   { keys:['itb','índice tobillo'],
-    reply:`<b>ITB</b>\n• ≥ 0,9: compresión permitida.\n• &lt; 0,9: enfermedad arterial → <b>no comprimir</b>, derivar.\n• &gt; 1,3: posible falso elevado (calcificación en diabetes).` },
+    reply:`<b>ITB</b>\n• ≥ 0,9: compresión permitida.\n• Menor de 0,9: enfermedad arterial → <b>no comprimir</b>, derivar.\n• Mayor de 1,3: posible falso elevado (calcificación en diabetes).` },
   { keys:['alginato','alginatos'],
     reply:`<b>Alginatos</b>\n• Gelifican con exudado. Muy absorbentes y hemostáticos.\n• Indicados en exudado alto, cavidades o sangrado.\n• No usar en heridas secas.\n• Marcas: Algisite M, Cutimed Alginate, Melgisorb.` },
   { keys:['espuma','foam','poliuretano'],
@@ -1050,15 +1130,15 @@ const KB = [
   { keys:['miel','medihoney','activon','manuka'],
     reply:`<b>Miel médica</b>\n• Antibacteriana, antiinflamatoria, favorece desbridamiento.\n• <b>Evidencia sólida (Cochrane 2015)</b> en quemaduras de espesor parcial.\n• Evidencia limitada en úlceras crónicas y pie diabético.\n• Marcas: Medihoney, Activon/Actilite, L-Mesitran.\n• <b>Atención:</b> AEMPS retiró lotes de Medihoney en 2025 por esterilidad.` },
   { keys:['larva','larvas','maggot','biocirugía'],
-    reply:`<b>Terapia larval</b>\n• Larvas estériles de <i>Lucilia sericata</i> desbridan tejido necrótico selectivamente.\n• Metaanálisis 2025: puede desbridar más rápido (RR 2,17) pero sin significación (p=0,09).\n• Alternativa cuando el desbridamiento quirúrgico no es viable.\n• España: uso compasivo (RD 1015/2009). UK: disponible en NHS (LarvE®).\n• Coste LarvE®: ~£58/frasco (300 larvas).` },
+    reply:`<b>Terapia larval</b>\n• Larvas estériles de Lucilia sericata que desbridan tejido necrótico selectivamente.\n• Metaanálisis 2025: puede desbridar más rápido (RR 2,17) pero sin significación (p=0,09).\n• Alternativa cuando el desbridamiento quirúrgico no es viable.\n• España: uso compasivo (RD 1015/2009). UK: disponible en NHS (LarvE®).\n• Coste LarvE®: ≈ £58/frasco (300 larvas).` },
   { keys:['sespa','código','codigo','biata','mepilex'],
     reply:`<b>Códigos SESPA (ejemplos)</b>\n• BIATAIN CONTACT: 2102205 (7,5x10); 104202 (10x18).\n• ESENTA: 2114316.\n• MEPENTOL LECHE: 2105594.\n• MEPILEX TRANSFER Ag: 2116025.\nConsulte la pestaña <b>“Catálogo”</b>.` },
   { keys:['precio','coste','cuánto cuesta','euros'],
     reply:`<b>Precios orientativos</b>\n• Hidrogeles: 4-10 €.\n• Hidrocoloides: 0,57-10 €.\n• Espumas: 1,75-20 €.\n• Alginatos: 3-12 €.\n• Plata: 8-30 €.\n• DACC Sorbact: 6-18 €.\n• UrgoStart: 6,38 €.\n• Biatain Ibu: 8-15 €.\nPrecios del SESPA se fijan por licitación.` },
   { keys:['quemadura','burn'],
-    reply:`<b>Quemaduras de 2º grado</b>\n• <b>Hidrogel</b>: metaanálisis muestra ~3 días menos de cicatrización vs tratamiento convencional.\n• <b>Plata</b> (hidrofibra o espuma) recomendada en la 1ª semana en guía japonesa 2023.\n• <b>Miel médica</b>: evidencia Cochrane de alta calidad en espesor parcial.\n• Evitar apósitos adherentes.` },
+    reply:`<b>Quemaduras de 2.º grado</b>\n• <b>Hidrogel</b>: metaanálisis muestra ≈ 3 días menos de cicatrización frente a tratamiento convencional.\n• <b>Plata</b> (hidrofibra o espuma) recomendada en la 1.ª semana en guía japonesa 2023.\n• <b>Miel médica</b>: evidencia Cochrane de alta calidad en espesor parcial.\n• Evitar apósitos adherentes.` },
   { keys:['skin tear','desgarro','piel frágil'],
-    reply:`<b>Desgarros cutáneos (skin tears)</b>\n• Apósito de elección: <b>silicona</b>.\n• Espuma adhesiva de silicona: 86% curación completa a 3 semanas vs 59% con malla.\n• Retirada atraumática.\n• Marcas: Mepilex, Biatain Silicone, Mepitel.` },
+    reply:`<b>Desgarros cutáneos (skin tears)</b>\n• Apósito de elección: <b>silicona</b>.\n• Espuma adhesiva de silicona: 86 % curación completa a 3 semanas frente a 59 % con malla.\n• Retirada atraumática.\n• Marcas: Mepilex, Biatain Silicone, Mepitel.` },
   { keys:['quirúrgica','quirurgica','cirugía'],
     reply:`<b>Heridas quirúrgicas</b>\n• Cura en ambiente húmedo superior a cura seca.\n• Films, hidrocoloides o espumas según exudado.\n• Plata metálica: mejor prevención de infección del sitio quirúrgico en metaanálisis en red.\n• Hidrocoloides: menos cambios de apósito.` },
   { keys:['hola','ayuda','qué puedes'],
@@ -1068,25 +1148,27 @@ const KB = [
 function botReply(userText){
   const t = userText.toLowerCase();
   let best = null, bestScore = 0;
-  for(const item of KB){
+  for (const item of KB){
     let score = 0;
-    for(const k of item.keys){ if(t.includes(k)) score += k.length; }
-    if(score > bestScore){ bestScore = score; best = item; }
+    for (const k of item.keys){ if (t.includes(k)) score += k.length; }
+    if (score > bestScore){ bestScore = score; best = item; }
   }
   return best ? best.reply : `No he encontrado respuesta. Prueba con: <b>úlcera venosa</b>, <b>arterial</b>, <b>neuropática</b>, <b>compresión</b>, <b>infección</b>, <b>ITB</b>, <b>miel</b>, <b>larvas</b>, <b>DACC</b>, <b>Biatain Ibu</b>, <b>código SESPA</b> o <b>precio</b>.`;
 }
+
 function sendBot(text){
   const txt = (text ?? botInput.value).trim();
-  if(!txt) return;
-  addMsg(txt.replace(/</g,'&lt;'), 'user');
+  if (!txt) return;
+  addMsg(txt.replace(/</g, '&lt;'), 'user');
   botInput.value = '';
-  typing(()=> addMsg(botReply(txt), 'bot'), 420);
+  typing(() => addMsg(botReply(txt), 'bot'), 420);
 }
-$('bot-send').addEventListener('click', ()=> sendBot());
-botInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendBot(); } });
-document.getElementById('quick').addEventListener('click', e=>{
+
+$('bot-send').addEventListener('click', () => sendBot());
+botInput.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); sendBot(); } });
+document.getElementById('quick').addEventListener('click', e => {
   const b = e.target.closest('button[data-q]');
-  if(b) sendBot(b.dataset.q);
+  if (b) sendBot(b.dataset.q);
 });
 </script>
 </body>
