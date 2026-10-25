@@ -198,7 +198,7 @@
   <div class="card">
     <h2>Valoración de la úlcera<small>Los campos con * son necesarios. Marque solo lo que haya observado.</small></h2>
     <div class="modebar" role="tablist"><button type="button" id="mode-quick" class="on">⚡ Rápida</button><button type="button" id="mode-full">🔬 Completa</button></div>
-    <p class="hint" id="mode-hint" style="margin:0 0 6px">Modo rápida: lo fundamental (≈ 1 min). No incluye tamaño evolutivo, alergias, rasgos atípicos ni perfusión avanzada; pase a «Completa» si los necesita.</p>
+    <p class="hint" id="mode-hint" style="margin:0 0 6px">Modo rápida (≈ 30 s): solo lo imprescindible. No incluye piel, tamaño, gravedad local ni respuesta sistémica, antecedentes secundarios, alergias ni rasgos atípicos; pase a «Completa» si los necesita.</p>
 
     <fieldset>
       <legend><span class="num">1</span> Localización *</legend>
@@ -235,7 +235,7 @@
       </select>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="full">
       <legend><span class="num">3</span> Piel y pierna</legend>
       <div class="chips" id="skin"></div>
     </fieldset>
@@ -301,7 +301,7 @@
       <div class="chips full" id="periw"></div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="full">
       <legend><span class="num">7</span> Tamaño y evolución</legend>
       <div class="grid3">
         <div><label class="f" for="szL">Largo (cm)</label><input type="number" id="szL" step="0.1" min="0" inputmode="decimal"></div>
@@ -319,12 +319,12 @@
       <legend><span class="num">8</span> Signos de infección</legend>
       <label class="f">Signos locales de inflamación (IWGDF/IDSA)</label>
       <div class="chips" id="infection"></div>
-      <label class="f">Gravedad local</label>
-      <div class="chips" id="infx"></div>
+      <label class="f full">Gravedad local</label>
+      <div class="chips full" id="infx"></div>
       <label class="f full">Sospecha de carga bacteriana crítica / infección encubierta (NERDS)</label>
       <div class="chips full" id="nerds"></div>
-      <label class="f">Respuesta inflamatoria sistémica (marque los que cumpla)</label>
-      <div class="chips" id="sirs"></div>
+      <label class="f full">Respuesta inflamatoria sistémica (marque los que cumpla)</label>
+      <div class="chips full" id="sirs"></div>
     </fieldset>
 
     <fieldset>
@@ -1012,8 +1012,7 @@ document.addEventListener("click", function(e){
 });
 
 /* ---------- Chips ---------- */
-var QUICKCHIPS = ["edema","ocre","palida","fria","swelling","erythema","pain_inf","warmth","pus","eryth2","lymph","abscess","wetgang",
-  "s_temp","s_hr","s_rr","s_wbc","s_unstable","diabetes","neuropatia","claudicacion","dolor_reposo","isq_aguda","ic","tvp","tabaco"];
+var QUICKCHIPS = ["swelling","erythema","pain_inf","warmth","pus","diabetes","dolor_reposo","isq_aguda","ic"];
 function setMode(m){
   var sec = $("tab-valoracion");
   sec.className = "tab active" + (m === "quick" ? " quick" : "");
@@ -1593,6 +1592,9 @@ function renderResult(){
   }
   h += "</div>";
 
+  if ($("tab-valoracion").className.indexOf("quick") > -1) {
+    h += "<div class='alert info'><b class='t'>Valoración rápida</b>Plan generado solo con los datos esenciales. No se han valorado piel, tamaño y evolución, gravedad local de la infección, respuesta sistémica, alergias ni rasgos atípicos, que pueden modificar las alertas. Use «Completa» si hay dudas, infección moderada/grave sospechada, estancamiento o evolución prolongada.</div>";
+  }
   h += "<div class='card'><h2>" + (al.length ? "⚠️ Alertas" : "Alertas") + "</h2>";
   if (al.length) {
     for (i = 0; i < al.length; i++) { h += "<div class='alert " + al[i].lvl + "'><b class='t'>" + al[i].t + "</b>" + al[i].d + "</div>"; }
