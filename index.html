@@ -150,7 +150,17 @@
   .pill.r{background:var(--rojo-claro);color:var(--rojo)} .pill.a{background:var(--ambar-claro);color:var(--ambar)} .pill.b{background:var(--azul-claro);color:var(--azul)}
   .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
   .filter-row input{flex:1 1 200px}
-  @media print{
+  nav .grp{flex:0 0 2px;align-self:stretch;margin:4px 6px;background:var(--borde);border-radius:2px}
+  #fab{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:none;background:var(--rojo);color:#fff;font-size:1.4rem;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:40;cursor:pointer}
+  #sheet{display:none;position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.45);z-index:60}
+  #sheet.show{display:block}
+  #sheet .sheet-in{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:18px 18px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
+  .modebar{display:flex;gap:0;margin:2px 0 10px;border:2px solid var(--verde);border-radius:12px;overflow:hidden}
+  .modebar button{flex:1;border:none;background:#fff;color:var(--verde);padding:11px 8px;font-size:.9rem;font-weight:700;font-family:inherit;cursor:pointer}
+  .modebar button.on{background:var(--verde);color:#fff}
+  #tab-valoracion.quick .full{display:none !important}
+  #tab-valoracion.quick legend .num{display:none}
+  @media print{ #fab,#sheet{display:none !important}
     header,nav,.btn,.btn-row,.offline,.quick,.input-row{display:none !important}
     body{background:#fff} .card{box-shadow:none;break-inside:avoid}
     section.tab{display:none !important} section.tab.active{display:block !important}
@@ -168,21 +178,27 @@
   <button data-tab="valoracion" class="active">🩺 Valoración</button>
   <button data-tab="resultado">📋 Plan</button>
   <button data-tab="calc">🧮 Calculadoras</button>
-  <button data-tab="dd">🔮 Diferencial</button>
+  <span class="grp" aria-hidden="true"></span>
+  <button data-tab="bolsillo">📌 Bolsillo</button>
   <button data-tab="apositos">📦 Apósitos</button>
-  <button data-tab="terapias">🍯 Miel y larvas</button>
-  <button data-tab="evidencia">🔬 Evidencia</button>
-  <button data-tab="seguim">📈 Seguimiento</button>
+  <button data-tab="dd">🔮 Diferencial</button>
   <button data-tab="bot">💬 Consultas</button>
-  <button data-tab="info">ℹ️ Guía</button>
+  <span class="grp" aria-hidden="true"></span>
+  <button data-tab="evidencia">🔬 Evidencia</button>
+  <button data-tab="terapias">🍯 Miel y larvas</button>
+  <button data-tab="seguim">📈 Seguimiento</button>
+  <button data-tab="info">ℹ️ Acerca de</button>
 </nav>
 
 <main>
 
 <!-- ============ VALORACIÓN ============ -->
-<section class="tab active" id="tab-valoracion">
+<section class="tab active quick" id="tab-valoracion">
+  <details class="acc" style="border-color:var(--rojo)"><summary style="color:var(--rojo)">🚩 Banderas rojas — revisar antes de empezar</summary><div class="in" id="flags-top"></div></details>
   <div class="card">
-    <h2>Valoración de la úlcera<small>Los campos con * son necesarios. Cuantos más datos, más específico el plan. Marque solo lo que haya observado.</small></h2>
+    <h2>Valoración de la úlcera<small>Los campos con * son necesarios. Marque solo lo que haya observado.</small></h2>
+    <div class="modebar" role="tablist"><button type="button" id="mode-quick" class="on">⚡ Rápida</button><button type="button" id="mode-full">🔬 Completa</button></div>
+    <p class="hint" id="mode-hint" style="margin:0 0 6px">Modo rápida: lo fundamental (≈ 1 min). No incluye tamaño evolutivo, alergias, rasgos atípicos ni perfusión avanzada; pase a «Completa» si los necesita.</p>
 
     <fieldset>
       <legend><span class="num">1</span> Localización *</legend>
@@ -211,8 +227,8 @@
         <option value="ausente">Ausente o muy escaso (posible neuropatía)</option>
         <option value="otro">Otro / no clasificable</option>
       </select>
-      <label class="f" for="vas">Intensidad del dolor (0-10)</label>
-      <select id="vas" aria-label="Intensidad del dolor">
+      <label class="f full" for="vas">Intensidad del dolor (0-10)</label>
+      <select class="full" id="vas" aria-label="Intensidad del dolor">
         <option value="">No valorada</option>
         <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option>
         <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
@@ -237,8 +253,8 @@
       <p class="hint">Pulsos palpables no descartan enfermedad arterial (sobre todo con edema, obesidad o diabetes). Si no dispone de ITB, use la pestaña <b>Calculadoras</b>.</p>
       <div class="grid3">
         <div><label class="f" for="itb">ITB</label><input type="number" id="itb" step="0.01" min="0" max="3" inputmode="decimal" placeholder="1.05"></div>
-        <div><label class="f" for="toe">P. digital (mmHg)</label><input type="number" id="toe" step="1" min="0" max="300" inputmode="numeric" placeholder="opcional"></div>
-        <div><label class="f" for="brach">P. braquial máx. (mmHg)</label><input type="number" id="brach" step="1" min="0" max="300" inputmode="numeric" placeholder="para ITD"></div>
+        <div class="full"><label class="f" for="toe">P. digital (mmHg)</label><input type="number" id="toe" step="1" min="0" max="300" inputmode="numeric" placeholder="opcional"></div>
+        <div class="full"><label class="f" for="brach">P. braquial máx. (mmHg)</label><input type="number" id="brach" step="1" min="0" max="300" inputmode="numeric" placeholder="para ITD"></div>
       </div>
     </fieldset>
 
@@ -254,16 +270,16 @@
         <option value="mixto">Mixto</option>
         <option value="epitelizando">Epitelización (herida casi cerrada)</option>
       </select>
-      <label class="f" for="borders">Bordes</label>
-      <select id="borders" aria-label="Bordes">
+      <label class="f full" for="borders">Bordes</label>
+      <select class="full" id="borders" aria-label="Bordes">
         <option value="">— Seleccione —</option>
         <option value="irregulares">Irregulares, poco profundos</option>
         <option value="sacabocados">Bien definidos (“sacabocados”)</option>
         <option value="callo">Con callo hiperqueratósico</option>
         <option value="otro">Otro</option>
       </select>
-      <label class="f">Características especiales del lecho</label>
-      <div class="chips" id="special"></div>
+      <label class="f full">Características especiales del lecho</label>
+      <div class="chips full" id="special"></div>
     </fieldset>
 
     <fieldset>
@@ -274,15 +290,15 @@
         <option value="moderado">Moderado (satura en 2-3 días)</option>
         <option value="alto">Alto (satura en menos de 24 h)</option>
       </select>
-      <label class="f" for="exType">Tipo de exudado</label>
-      <select id="exType" aria-label="Tipo de exudado">
+      <label class="f full" for="exType">Tipo de exudado</label>
+      <select class="full" id="exType" aria-label="Tipo de exudado">
         <option value="">No valorado</option>
         <option value="seroso">Seroso (claro, fluido)</option>
         <option value="serohematico">Serohemático</option>
         <option value="purulento">Purulento (opaco, espeso)</option>
       </select>
-      <label class="f">Piel perilesional</label>
-      <div class="chips" id="periw"></div>
+      <label class="f full">Piel perilesional</label>
+      <div class="chips full" id="periw"></div>
     </fieldset>
 
     <fieldset>
@@ -290,13 +306,13 @@
       <div class="grid3">
         <div><label class="f" for="szL">Largo (cm)</label><input type="number" id="szL" step="0.1" min="0" inputmode="decimal"></div>
         <div><label class="f" for="szW">Ancho (cm)</label><input type="number" id="szW" step="0.1" min="0" inputmode="decimal"></div>
-        <div><label class="f" for="durW">Evolución (semanas)</label><input type="number" id="durW" step="1" min="0" inputmode="numeric"></div>
+        <div class="full"><label class="f" for="durW">Evolución (semanas)</label><input type="number" id="durW" step="1" min="0" inputmode="numeric"></div>
       </div>
-      <div class="grid2">
+      <div class="grid2 full">
         <div><label class="f" for="prevA">Área previa (cm², opcional)</label><input type="number" id="prevA" step="0.1" min="0" inputmode="decimal"></div>
         <div><label class="f" for="prevD">Hace cuántos días</label><input type="number" id="prevD" step="1" min="1" inputmode="numeric"></div>
       </div>
-      <p class="hint">Con área previa y fecha se estima la trayectoria de cicatrización (reducción porcentual del área).</p>
+      <p class="hint full">Con área previa y fecha se estima la trayectoria de cicatrización (reducción porcentual del área).</p>
     </fieldset>
 
     <fieldset>
@@ -305,8 +321,8 @@
       <div class="chips" id="infection"></div>
       <label class="f">Gravedad local</label>
       <div class="chips" id="infx"></div>
-      <label class="f">Sospecha de carga bacteriana crítica / infección encubierta (NERDS)</label>
-      <div class="chips" id="nerds"></div>
+      <label class="f full">Sospecha de carga bacteriana crítica / infección encubierta (NERDS)</label>
+      <div class="chips full" id="nerds"></div>
       <label class="f">Respuesta inflamatoria sistémica (marque los que cumpla)</label>
       <div class="chips" id="sirs"></div>
     </fieldset>
@@ -316,12 +332,12 @@
       <div class="chips" id="history"></div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="full">
       <legend><span class="num">10</span> Rasgos atípicos (para descartar otras causas)</legend>
       <div class="chips" id="atyp"></div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="full">
       <legend><span class="num">11</span> Alergias / sensibilidades de contacto</legend>
       <div class="chips" id="alerg"></div>
     </fieldset>
@@ -363,6 +379,8 @@
     <div id="itb-result" style="margin-top:12px"></div>
   </div>
 
+  <div class="card" id="itb-bands-card"></div>
+
   <div class="card">
     <h2>Calculadora de área y trayectoria de cicatrización<small>Estima el área (largo × ancho) y la reducción porcentual respecto a una medición previa.</small></h2>
     <div class="grid2">
@@ -388,6 +406,17 @@
     <button class="btn" id="btn-dd" style="margin-top:14px">🔮 Calcular</button>
     <div id="dd-result" style="margin-top:14px"></div>
   </div>
+  <div class="card" id="dd-table-card"></div>
+</section>
+
+<!-- ============ BOLSILLO ============ -->
+<section class="tab" id="tab-bolsillo">
+  <div class="card"><h2>Bolsillo<small>Consulta rápida: lo esencial en una pantalla.</small></h2></div>
+  <div class="card" id="b-flags"></div>
+  <div class="card" id="b-itb"></div>
+  <div class="card" id="b-exu"></div>
+  <div class="card" id="b-dd"></div>
+  <div class="card" id="b-siglas"></div>
 </section>
 
 <!-- ============ APÓSITOS ============ -->
@@ -396,6 +425,7 @@
     <h2>Guía de apósitos y materiales<small>Por clase: mecanismo, indicación, precauciones y evidencia con referencias. Marcas orientativas.</small></h2>
     <div class="alert info"><b class="t">Sobre precios y códigos</b>
       La v5 mostraba precios y códigos SESPA que no se han podido verificar en fuentes oficiales; se han retirado para no inducir a error. Consulte el catálogo de productos sanitarios y la licitación vigente de su área/centro. La mención de una marca no implica disponibilidad en su cartera.</div>
+    <div id="exu-box"></div>
     <div class="filter-row">
       <input type="text" id="cat-q" placeholder="Buscar marca o clase (p. ej. espuma, plata, Biatain)…" autocomplete="off">
     </div>
@@ -473,11 +503,19 @@
 
 <!-- ============ GUÍA ============ -->
 <section class="tab" id="tab-info">
-  <div class="card" id="guia-card"></div>
+  <div class="card" id="acerca-card"></div>
 </section>
 
 </main>
 
+<button id="fab" type="button" aria-label="Banderas rojas y bandas de ITB">🚩</button>
+<div id="sheet" role="dialog" aria-modal="true" aria-label="Banderas rojas">
+  <div class="sheet-in">
+    <button type="button" id="sheet-close" class="btn sec sm" style="float:right">Cerrar ✕</button>
+    <div id="sheet-body"></div>
+    <button type="button" id="sheet-more" class="btn sec">Abrir Bolsillo completo</button>
+  </div>
+</div>
 <div class="offline" id="offline-ind">📴 Modo offline</div>
 <script>
 /* ============================================================
@@ -747,8 +785,7 @@ var TERAPIAS_HTML = [
 "<div class='alert info'><b class='t'>Estatus en España</b>No se ha podido verificar en esta revisión el marco regulatorio actual de las larvas en España (la v5 citaba el RD 1015/2009, sobre disponibilidad de medicamentos en situaciones especiales, sin que se haya comprobado su aplicabilidad). Los costes y porcentajes de gasto del NHS de la v5 se han retirado por no ser verificables. Consulte con farmacia hospitalaria o la AEMPS.</div>"
 ].join("");
 
-var GUIA_HTML = [
-"<h2>Guía rápida<small>Diferencias clave, banderas rojas, terminología y cambios de esta versión.</small></h2>",
+var GUIA_DD = [
 "<h3>Tabla diferencial de úlceras de extremidad inferior {{singer2017}}</h3>",
 "<div class='table-wrap'><table class='cat'><thead><tr><th>Característica</th><th>Arterial / isquémica</th><th>Venosa</th><th>Neuropática (pie diabético)</th></tr></thead><tbody>",
 "<tr><td>Localización</td><td>Dedos, talón, zonas de presión distales</td><td>Maleolar medial, tercio inferior</td><td>Planta, cabezas metatarsianas, prominencias</td></tr>",
@@ -760,6 +797,9 @@ var GUIA_HTML = [
 "<tr><td>Compresión</td><td>No si ITB muy bajo / CLTI</td><td>Pilar del tratamiento (ver bandas de ITB)</td><td>Solo si hay componente venoso y perfusión adecuada</td></tr>",
 "</tbody></table></div>",
 
+].join("");
+
+var GUIA_ITB = [
 "<h3>Bandas de ITB y compresión {{weller2019,team2019,demaeseneer2022}}</h3>",
 "<div class='table-wrap'><table class='cat'><thead><tr><th>ITB</th><th>Interpretación</th><th>Compresión</th></tr></thead><tbody>",
 "<tr><td>Mayor de 1,4</td><td>Arterias no compresibles (calcificación) {{gerhard2017}}</td><td>ITB no fiable: medir presión digital / ITD, onda Doppler</td></tr>",
@@ -770,6 +810,9 @@ var GUIA_HTML = [
 "</tbody></table></div>",
 "<p class='hint'>La v5 contraindicaba la compresión con ITB menor de 0,9. Ese umbral es más estricto que el de la mayoría de guías (la mayoría sitúa el límite inferior de la compresión plena en 0,8) y puede retrasar un tratamiento eficaz.</p>",
 
+].join("");
+
+var GUIA_FLAGS = [
 "<h3>Banderas rojas</h3>",
 "<ul style='padding-left:20px;font-size:.88rem'>",
 "<li><b>Isquemia aguda</b> (inicio brusco de dolor, frialdad, palidez, pérdida de pulsos/sensibilidad): urgencia vascular inmediata.</li>",
@@ -779,6 +822,9 @@ var GUIA_HTML = [
 "<li><b>Estancamiento</b>: reducción de área menor de ≈ 50 % (pie diabético) o ≈ 40 % (venosa, umbral orientativo) a las 4 semanas: revisar causa, perfusión, infección, adherencia y derivar {{sheehan2003,kantor2000}}.</li>",
 "</ul>",
 
+].join("");
+
+var GUIA_EXU = [
 "<h3>Selección por exudado y lecho (síntesis)</h3>",
 "<ul style='padding-left:20px;font-size:.88rem'>",
 "<li><b>Necrosis seca estable en miembro isquémico:</b> mantener seca; no hidratar {{tayside2021}}.</li>",
@@ -788,9 +834,16 @@ var GUIA_HTML = [
 "<li><b>Infección:</b> tratamiento sistémico según gravedad; plata/PHMB/DACC solo como adyuvante temporal (≈ 2 semanas).</li>",
 "</ul>",
 
+].join("");
+
+var GUIA_SIGLAS = [
 "<h3>Siglas</h3>",
 "<p style='font-size:.84rem'><b>ITB</b> índice tobillo-brazo · <b>ITD</b> índice dedo-brazo · <b>EAP</b> enfermedad arterial periférica · <b>CLTI</b> isquemia crónica amenazante de la extremidad · <b>WIfI</b> Wound, Ischemia, foot Infection · <b>IWGDF</b> International Working Group on the Diabetic Foot · <b>PTB</b> probe-to-bone · <b>NERDS/STONES</b> signos de carga bacteriana crítica / infección profunda {{sibbald2006}} · <b>T.I.M.E.</b> {{schultz2003}} y <b>TIMERS</b> {{atkin2019}}.</p>",
 
+].join("");
+
+var ACERCA_HTML = [
+"<h2>Acerca de WoundDecision v6<small>Cambios respecto a la v5, limitaciones y alcance.</small></h2>",
 "<h3>Qué cambia en la v6 (correcciones de la v5)</h3>",
 "<ol style='font-size:.84rem;line-height:1.5'>",
 "<li><b>Compresión:</b> ITB ≥ 0,9 → bandas por ITB con zona gris 0,5–0,8 y ITB no fiable por encima de 1,3–1,4.</li>",
@@ -804,7 +857,7 @@ var GUIA_HTML = [
 "<li><b>Infección:</b> criterios IWGDF/IDSA y gravedad; NERDS/STONES para carga bacteriana crítica; SIRS.</li>",
 "<li><b>Nuevo:</b> perfusión (WIfI), trayectoria de cicatrización, rasgos atípicos y biopsia, alergias, calculadoras, seguimiento local, T.I.M.E., referencias con nivel de comprobación.</li>",
 "<li><b>Referencias retiradas por no ser verificables:</b> “NICE 2025”, “GNEAUPP 2024”, “Consejo General de Enfermería (SESPA)”, “Generalitat Valenciana (UCL)”, “NHS Formulary: Sterile Larvae”, y la frase “espumas e hidrocoloides superiores a cura seca” atribuida a EPUAP/NPIAP/PPPIA (esa guía trata lesiones por presión).</li>",
-"<li><b>Técnica:</b> JavaScript ES5 para iOS; sin <code>:has()</code>; el service worker por blob de la v5 no puede registrarse en los navegadores, por lo que nunca funcionó offline. Esta versión es un único archivo HTML autónomo (sin modo offline instalable).</li>",
+"<li><b>Técnica:</b> JavaScript ES5 para iOS; sin <code>:has()</code>; el service worker por blob de la v5 no puede registrarse en los navegadores, por lo que nunca funcionó offline. Esta versión es un único archivo HTML autónomo.</li>",
 "</ol>",
 
 "<h3>Limitaciones</h3>",
@@ -959,6 +1012,16 @@ document.addEventListener("click", function(e){
 });
 
 /* ---------- Chips ---------- */
+var QUICKCHIPS = ["edema","ocre","palida","fria","swelling","erythema","pain_inf","warmth","pus","eryth2","lymph","abscess","wetgang",
+  "s_temp","s_hr","s_rr","s_wbc","s_unstable","diabetes","neuropatia","claudicacion","dolor_reposo","isq_aguda","ic","tvp","tabaco"];
+function setMode(m){
+  var sec = $("tab-valoracion");
+  sec.className = "tab active" + (m === "quick" ? " quick" : "");
+  $("mode-quick").className = m === "quick" ? "on" : "";
+  $("mode-full").className = m === "full" ? "on" : "";
+  $("mode-hint").style.display = m === "quick" ? "block" : "none";
+  try { window.localStorage.setItem("wd6_mode", m); } catch (e) {}
+}
 function buildChips(){
   var g, i, items, html, cont;
   for (g in CHIPS) {
@@ -967,7 +1030,7 @@ function buildChips(){
     if (!cont) { continue; }
     items = CHIPS[g]; html = [];
     for (i = 0; i < items.length; i++) {
-      html.push("<label class='chip'><input type='checkbox' value='" + items[i][0] + "'> " + items[i][1] + "</label>");
+      html.push("<label class='chip" + (has(QUICKCHIPS, items[i][0]) ? "" : " full") + "'><input type='checkbox' value='" + items[i][0] + "'> " + items[i][1] + "</label>");
     }
     cont.innerHTML = html.join("");
   }
@@ -975,13 +1038,13 @@ function buildChips(){
     var t = e.target, p;
     if (t && t.type === "checkbox" && t.parentNode && t.parentNode.className.indexOf("chip") > -1) {
       p = t.parentNode;
-      p.className = t.checked ? "chip on" : "chip";
+      p.className = "chip" + (t.checked ? " on" : "") + (p.className.indexOf("full") > -1 ? " full" : "");
     }
   });
 }
 function clearChips(){
   var els = document.querySelectorAll(".chip input"), i;
-  for (i = 0; i < els.length; i++) { els[i].checked = false; els[i].parentNode.className = "chip"; }
+  for (i = 0; i < els.length; i++) { els[i].checked = false; els[i].parentNode.className = (els[i].parentNode.className.indexOf("full") > -1 ? "chip full" : "chip"); }
 }
 
 /* ---------- Render: referencias, evidencia, catálogo, T.I.M.E. ---------- */
@@ -1877,10 +1940,24 @@ function init(){
   buildDD();
   renderRefs(); renderEvidence(); renderTime(); renderCatalog("");
   $("terapias-card").innerHTML = T(TERAPIAS_HTML);
-  $("guia-card").innerHTML = T(GUIA_HTML);
+  $("acerca-card").innerHTML = T(ACERCA_HTML);
+  $("flags-top").innerHTML = T(GUIA_FLAGS);
+  $("itb-bands-card").innerHTML = T(GUIA_ITB);
+  $("exu-box").innerHTML = T(GUIA_EXU);
+  $("dd-table-card").innerHTML = T(GUIA_DD);
+  $("b-flags").innerHTML = T(GUIA_FLAGS); $("b-itb").innerHTML = T(GUIA_ITB); $("b-exu").innerHTML = T(GUIA_EXU);
+  $("b-dd").innerHTML = T(GUIA_DD); $("b-siglas").innerHTML = T(GUIA_SIGLAS);
+  $("sheet-body").innerHTML = T(GUIA_FLAGS + GUIA_ITB);
+  $("fab").addEventListener("click", function(){ $("sheet").className = "show"; $("sheet").scrollTop = 0; });
+  $("sheet-close").addEventListener("click", function(){ $("sheet").className = ""; });
+  $("sheet").addEventListener("click", function(e){ if (e.target === $("sheet")) { $("sheet").className = ""; } });
+  $("sheet-more").addEventListener("click", function(){ $("sheet").className = ""; goTab("bolsillo"); });
   for (i = 0; i < QUICK.length; i++) { h.push("<button type='button' data-q=\"" + esc(QUICK[i]) + "\">" + esc(QUICK[i]) + "</button>"); }
   q.innerHTML = h.join("");
 
+  $("mode-quick").addEventListener("click", function(){ setMode("quick"); });
+  $("mode-full").addEventListener("click", function(){ setMode("full"); });
+  try { if (window.localStorage.getItem("wd6_mode") === "full") { setMode("full"); } } catch (e) {}
   $("btn-analizar").addEventListener("click", renderResult);
   $("btn-limpiar").addEventListener("click", function(){
     var ids = ["loc", "pain", "vas", "pulses", "bed", "borders", "exudate", "exType"], j;
